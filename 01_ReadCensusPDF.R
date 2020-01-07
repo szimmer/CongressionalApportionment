@@ -16,18 +16,12 @@ page2split <- str_split(page2, "\\n", simplify = TRUE) %>% as.vector()
 page2tibble <- tibble(RawText=page2split) %>%
   filter(row_number()>=13) %>%
   filter(row_number()<=50) %>%
-  mutate(TextSquish=str_replace_all(RawText, "\\.\\s\\.", "\\."),
-         TextSquish=str_replace_all(TextSquish, "\\.\\s\\.", "\\."),
-         TextSquish=str_replace_all(TextSquish, "\\.\\s\\.", "\\."),
-         TextSquish=str_replace_all(TextSquish, "\\.\\s\\.", "\\."),
-         TextSquish=str_replace_all(TextSquish, "\\.\\s\\.", "\\.")
-         ) %>%
+  mutate(TextSquish=str_replace_all(RawText, "(\\.\\s)+", "\\.")) %>%
   separate(TextSquish, into=c("State", "Rest"), sep="\\.", extra="merge") %>%
-  mutate(Rest=str_trim(Rest),
-         Rest=str_squish(Rest),
+  mutate(Rest=str_squish(Rest),
          Rest=str_replace_all(Rest, "\\(X\\)", "NA")) %>%
-  separate(Rest, 
-           into=c("TotalPop", "ResPop", "OverseasPop", str_c("Rep", c(2020-10*1:11))), 
+  separate(Rest,
+           into=c("TotalPop", "ResPop", "OverseasPop", str_c("Rep", c(2020-10*1:11))),
            sep="\\s", convert=TRUE) %>%
   select(-RawText) %>%
   mutate(TotalPop=parse_number(TotalPop),
